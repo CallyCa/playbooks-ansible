@@ -1,0 +1,11 @@
+# Homebrew
+---
+- block:
+    - name: Installing Homebrew
+      ansible.legacy.shell:
+        cmd: "curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+        # warn: false
+    - name: Installing Rbenv
+      ansible.legacy.shell:
+        cmd: "curl -fsSL https://github.com/rbenv/rbenv-installer/raw/HEAD/bin/rbenv-installer | bash"
+        # warn: false

@@ -1,0 +1,3 @@
+---
+- name: Create VM snapshot
+  command: "vmware-cmd -H vmhost -U user -P password createsnapshot myvm 'Snapshot before update' 'Snapshot created by Ansible' 0 0"

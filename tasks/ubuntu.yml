@@ -1,0 +1,12 @@
+---
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: yes
+
+- name: Install common packages
+  become: true
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+    install_recommends: yes

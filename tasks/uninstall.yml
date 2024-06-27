@@ -1,0 +1,10 @@
+---
+- name: Remove Docker
+  ansible.builtin.apt:
+    name: docker-ce
+    state: absent
+
+- name: Remove Docker configurations
+  file:
+    path: /etc/docker
+    state: absent

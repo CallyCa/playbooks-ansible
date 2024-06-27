@@ -1,0 +1,11 @@
+# NodeJS
+---
+- block:
+    - name: Installing nodeJS
+      ansible.builtin.shell:
+        cmd: "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+
+    - name: Installing npm
+      become: true
+      ansible.builtin.apt:
+        name: nodejs

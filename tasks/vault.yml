@@ -1,0 +1,8 @@
+# Vault
+---
+- name: Install Vault 1.11.2
+  become: true
+  ansible.builtin.unarchive:
+    src: "https://releases.hashicorp.com/vault/1.11.2/vault_1.11.2_linux_amd64.zip"
+    dest: /usr/local/bin
+    remote_src: true

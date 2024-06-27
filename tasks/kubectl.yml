@@ -1,0 +1,25 @@
+# Kubectl
+---
+- name: Install Kubectl
+  block:
+    - name: Installing Kubectl 1.24.0
+      become: true
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/v1.24.0/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: 755
+    - name: Downloading Kubectx and Kubens
+      become: true
+      ansible.builtin.git:
+        repo: "https://github.com/ahmetb/kubectx/"
+        version: v0.9.5
+        dest: /opt/kubectx
+    - name: Creating Symlink to kubectx and kubens
+      become: true
+      ansible.builtin.file:
+        src: "/opt/kubectx/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        state: link
+      with_items:
+        - kubectx
+        - kubens

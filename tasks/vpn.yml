@@ -1,0 +1,16 @@
+---
+- name: Install OpenVPN
+  apt:
+    name: openvpn
+    state: present
+
+- name: Copy OpenVPN configuration
+  copy:
+    src: files/openvpn/server.conf
+    dest: /etc/openvpn/server.conf
+
+- name: Start and enable OpenVPN service
+  systemd:
+    name: openvpn@server
+    state: started
+    enabled: yes

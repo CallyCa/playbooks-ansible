@@ -1,0 +1,31 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: ubuntu
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    pre_build_image: true
+    privileged: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    environment:
+      USER: "{{ lookup('env', 'USER') }}"
+      HOME: "/home/{{ lookup('env', 'USER') }}"
+    pre_tasks:
+      - name: Create user calendario2009
+        command: useradd -m -s /bin/bash "{{ lookup('env', 'USER') }}"
+      - name: Set password for calendario2009
+        command: echo '{{ lookup('env', 'USER') }}:password' | chpasswd
+      - name: Create home directory for calendario2009
+        file:
+          path: "/home/{{ lookup('env', 'USER') }}"
+          state: directory
+          owner: "{{ lookup('env', 'USER') }}"
+          group: "{{ lookup('env', 'USER') }}"
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

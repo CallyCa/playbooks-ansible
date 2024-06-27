@@ -1,0 +1,36 @@
+# Flatpak
+---
+- name: Flatpak install
+  block:
+    - name: Add Flatpak PPA repository
+      become: true
+      ansible.builtin.apt_repository:
+        repo: ppa:alexlarsson/flatpak
+        state: present
+
+    - name: Ensure Flatpak is installed and up-to-date
+      become: true
+      ansible.builtin.apt:
+        name: flatpak
+        state: latest
+
+    - name: Ensure Flatpak remote is configured
+      become: true
+      ansible.builtin.shell: |
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+    - name: Flathub install
+      become: true
+      community.general.flatpak_remote:
+        name: flathub
+        state: present
+        flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+        method: system
+
+    - name: Flatpak install packages
+      become: true
+      community.general.flatpak:
+        name:
+          - md.obsidian.Obsidian
+          - com.microsoft.Edge
+        state: present

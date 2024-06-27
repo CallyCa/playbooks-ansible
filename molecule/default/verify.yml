@@ -1,0 +1,24 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+    - name: Check if vim is installed
+      command: vim --version
+      register: result
+      failed_when: result.rc != 0
+    - name: Check if docker service is running
+      service_facts:
+      register: services
+    - name: Assert docker is running
+      assert:
+        that:
+          - "'docker' in services.ansible_facts.services"
+          - "services.ansible_facts.services['docker'].state == 'running'"
+    - name: Check if zsh is default shell
+      command: echo $SHELL
+      register: shell_result
+      changed_when: false
+    - name: Assert zsh is default shell
+      assert:
+        that:
+          - "shell_result.stdout == '/bin/zsh'"

@@ -1,0 +1,10 @@
+---
+- name: Ensure backup directory exists
+  file:
+    path: /var/backups
+    state: directory
+    mode: "0755"
+
+- name: Create a backup of /etc
+  command: tar czf /var/backups/etc-backup-$(date +%F).tar.gz /etc
+  notify: backup completed

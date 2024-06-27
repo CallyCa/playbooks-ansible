@@ -1,0 +1,18 @@
+---
+- name: Configure UFW
+  ufw:
+    rule: allow
+    port: 22
+    proto: tcp
+# - name: Disable root SSH login
+#   lineinfile:
+#     path: /etc/ssh/sshd_config
+#     regexp: '^PermitRootLogin'
+#     line: 'PermitRootLogin no'
+#     notify: restart sshd
+
+# - name: Enforce password policies
+#   lineinfile:
+#     path: /etc/login.defs
+#     regexp: '^PASS_MAX_DAYS'
+#     line: 'PASS_MAX_DAYS 90'

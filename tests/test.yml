@@ -1,0 +1,10 @@
+# Integration Tests
+---
+- name: Test Playbook
+  hosts: all
+  tasks:
+    - name: Assert all packages are installed
+      assert:
+        that:
+          - "'vim' in ansible_facts.packages"
+          - "'curl' in ansible_facts.packages"

@@ -1,0 +1,80 @@
+# ZSH
+---
+- block:
+    - name: Verify if Oh-My-zsh is installed
+      ansible.builtin.command:
+        cmd: "test -d /home/{{ ansible_user_id }}/.oh-my-zsh"
+      register: ohmyzsh
+      ignore_errors: true
+
+    - name: Download Oh-My-zsh install script
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh"
+        dest: "/tmp/install-oh-my-zsh.sh"
+      when: ohmyzsh.rc != 0
+
+    - name: Make Oh-My-zsh install script executable
+      ansible.builtin.file:
+        path: "/tmp/install-oh-my-zsh.sh"
+        mode: "0755"
+      when: ohmyzsh.rc != 0
+
+    - name: Installing Oh-My-zsh
+      ansible.builtin.shell:
+        cmd: "RUNZSH=no KEEP_ZSHRC=yes CHSH=no sh /tmp/install-oh-my-zsh.sh"
+      when: ohmyzsh.rc != 0
+
+    - name: Ensure home directory exists
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user_id }}"
+        state: directory
+
+    - name: Ensure .zshrc exists
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user_id }}/.zshrc"
+        state: touch
+
+    - name: Changing Default Shell to ZSH
+      become: true
+      ansible.builtin.user:
+        name: "{{ ansible_user_id }}"
+        shell: /bin/zsh
+
+    - name: Downloading ZSH Theme Spaceship
+      become: true
+      ansible.builtin.git:
+        repo: "https://github.com/denysdovhan/spaceship-prompt.git"
+        dest: /home/{{ ansible_user_id }}/.oh-my-zsh/custom/themes/spaceship-prompt
+
+    - name: Creating Symlink to Theme Spaceship
+      ansible.builtin.file:
+        src: "/home/{{ ansible_user_id }}/.oh-my-zsh/custom/themes/spaceship-prompt/{{ item }}"
+        dest: "/home/{{ ansible_user_id }}/.oh-my-zsh/custom/themes/{{ item }}"
+        state: link
+      with_items:
+        - spaceship.zsh-theme
+
+    - name: Changing Default ZSH Theme to Spaceship
+      ansible.builtin.lineinfile:
+        path: /home/{{ ansible_user_id }}/.zshrc
+        regexp: "^ZSH_THEME="
+        line: 'ZSH_THEME="spaceship"'
+
+    - name: Creating ZSH Completion folder
+      ansible.builtin.file:
+        path: /home/{{ ansible_user_id }}/.oh-my-zsh/completions
+        state: directory
+        mode: 0755
+
+    - name: Adding autoload to compinit
+      ansible.builtin.lineinfile:
+        path: /home/{{ ansible_user_id }}/.zshrc
+        line: "autoload -U compinit && compinit"
+        state: present
+
+    - name: Downloading Dracula Terminal
+      ansible.builtin.git:
+        repo: "https://github.com/dracula/{{ item }}"
+        dest: /home/{{ ansible_user_id }}/{{ item }}
+      with_items:
+        - gnome-terminal

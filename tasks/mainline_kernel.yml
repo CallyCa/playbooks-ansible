@@ -1,0 +1,11 @@
+# Ubuntu's Mainline Kernel
+---
+- name: Adding Ubuntu Mainline Kernel Repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "ppa:cappelikan/ppa"
+    state: present
+- name: Installing Ubuntu Mainline Kernel
+  become: true
+  ansible.builtin.apt:
+    name: mainline

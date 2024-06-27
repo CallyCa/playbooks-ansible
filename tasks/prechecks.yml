@@ -1,0 +1,10 @@
+---
+- name: Check available disk space
+  ansible.builtin.command: df -h /
+  register: disk_space
+  failed_when: disk_space.stdout.find('100%') != -1
+
+- name: Ensure python3-pip is installed
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present

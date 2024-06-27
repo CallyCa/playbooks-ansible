@@ -1,0 +1,17 @@
+# Metadados
+---
+galaxy_info:
+  author: calendario2009
+  namespace: calendario2009 # Substitua por seu namespace
+  role_name: template_role_ansible # Substitua pelo nome apropriado do role
+  description: Setup Ubuntu Workstation with necessary tools and applications
+  license: MIT
+  min_ansible_version: "2.9"
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+        - focal
+
+dependencies: []

@@ -1,0 +1,39 @@
+# Ruby
+---
+- name: Installing Dependencies to Ruby-2.7.6
+  become: true
+  apt:
+    name: "{{ item }}"
+    install_recommends: yes
+    state: present
+  loop:
+    - autoconf
+    - bison
+    - build-essential
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm6
+    - libgdbm-dev
+    - libdb-dev
+    - g++
+    - gcc
+    - autoconf
+    - automake
+    - bison
+    - libc6-dev
+    - libffi-dev
+    - libgdbm-dev
+    - libncurses5-dev
+    - libsqlite3-dev
+    - libtool
+    - libyaml-dev
+    - pkg-config
+    - sqlite3
+    - zlib1g-dev
+    - libgmp-dev
+    - libreadline-dev
+    - libssl-dev

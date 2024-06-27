@@ -1,0 +1,8 @@
+# Vagrant
+---
+- name: Install Vagrant 2.2.19
+  become: true
+  ansible.builtin.unarchive:
+    src: "https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_linux_amd64.zip"
+    dest: /usr/local/bin
+    remote_src: true

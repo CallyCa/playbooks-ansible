@@ -1,0 +1,9 @@
+---
+- name: Generate report
+  ansible.builtin.command: ./generate_report.sh
+  register: report_output
+
+- name: Save report to file
+  ansible.builtin.copy:
+    content: "{{ report_output.stdout }}"
+    dest: /var/log/ansible/report.txt

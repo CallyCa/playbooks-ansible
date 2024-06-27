@@ -1,0 +1,25 @@
+---
+ansible_user_id: "{{ lookup('env', 'USER') }}"
+common_packages:
+  - vim
+  - htop
+  - curl
+  - wget
+  - ncdu
+  - tree
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - python3-pip
+  - make
+  - git
+  - bash-completion
+  - gnupg-agent
+  - zsh
+  - virtualbox
+  - mlocate
+  - krita
+  - jq
+  - mtr
+  - snapd
+  - flatpak
