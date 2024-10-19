@@ -1,0 +1,39 @@
+- name: Update package repository cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Add DBeaver repository to APT sources
+  ansible.builtin.command:
+    cmd: 'echo "deb https://dbeaver.io/debs/dbeaver-ce /" | tee /etc/apt/sources.list.d/dbeaver.list'
+
+- name: Add DBeaver GPG key
+  ansible.builtin.command:
+    cmd: "wget -O - https://dbeaver.io/debs/dbeaver.gpg.key | apt-key add -"
+
+- name: Update APT package repository
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install DBeaver CE
+  ansible.builtin.apt:
+    name: dbeaver-ce
+    state: present
+
+- name: Check if Java is installed
+  ansible.builtin.command: java -version
+  register: java_installed
+  ignore_errors: true
+
+- name: Install OpenJDK if Java is not installed
+  ansible.builtin.apt:
+    name: openjdk-11-jdk
+    state: present
+  when: java_installed.failed
+
+- name: Verify DBeaver installation
+  ansible.builtin.command: dbeaver -version
+  register: dbeaver_version
+
+- name: Show installed DBeaver version
+  ansible.builtin.debug:
+    msg: "DBeaver version installed: {{ dbeaver_version.stdout_lines }}"

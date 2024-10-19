@@ -1,0 +1,94 @@
+---
+# Playbook para instalar e configurar o OpenSSL
+
+- name: Install required packages for building OpenSSL
+  ansible.builtin.apt:
+    name:
+      - checkinstall
+      - zlib1g-dev
+      - wget
+      - libssl-dev
+    state: present
+    update_cache: true
+  tags:
+    - dependencies
+
+- name: Download OpenSSL source
+  ansible.builtin.get_url:
+    url: "https://github.com/openssl/openssl/releases/download/openssl-{{ openssl_version }}/openssl-{{ openssl_version }}.tar.gz"
+    dest: "/tmp/openssl-{{ openssl_version }}.tar.gz"
+    mode: "0644"
+  tags:
+    - download
+
+- name: Extract OpenSSL source
+  ansible.builtin.unarchive:
+    src: "/tmp/openssl-{{ openssl_version }}.tar.gz"
+    dest: "/tmp"
+    remote_src: yes
+  tags:
+    - extract
+
+- name: Configure OpenSSL
+  ansible.builtin.command:
+    cmd: "./config --prefix={{ openssl_install_dir }} --openssldir={{ openssl_install_dir }} shared zlib"
+    chdir: "/tmp/openssl-{{ openssl_version }}"
+  tags:
+    - configure
+
+- name: Build OpenSSL
+  ansible.builtin.command:
+    cmd: make -j"{{ ansible_processor_vcpus | default(2) }}"
+    chdir: "/tmp/openssl-{{ openssl_version }}"
+  tags:
+    - build
+
+- name: Install OpenSSL
+  ansible.builtin.command:
+    cmd: make install
+    chdir: "/tmp/openssl-{{ openssl_version }}"
+  tags:
+    - install
+
+- name: Update shared library cache
+  ansible.builtin.command:
+    cmd: ldconfig -v
+  tags:
+    - ldconfig
+
+- name: Update PATH environment variable for OpenSSL
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/openssl.sh
+    line: "export PATH={{ openssl_install_dir }}/bin:$PATH"
+    create: yes
+    state: present
+  tags:
+    - environment
+
+- name: Source the environment file to apply changes
+  ansible.builtin.shell: . /etc/profile.d/openssl.sh
+  args:
+    executable: /bin/bash
+  tags:
+    - environment
+
+- name: Verify OpenSSL installation
+  ansible.builtin.command:
+    cmd: openssl version
+  register: openssl_version_check
+  changed_when: false
+  tags:
+    - verify
+
+- name: Display OpenSSL version
+  ansible.builtin.debug:
+    msg: "OpenSSL installed: {{ openssl_version_check.stdout }}"
+  tags:
+    - verify
+
+- name: Ensure OpenSSL version is not beta
+  ansible.builtin.assert:
+    that: "'beta' not in openssl_version"
+    fail_msg: "Beta version of OpenSSL detected, please install a stable version."
+  tags:
+    - check_version

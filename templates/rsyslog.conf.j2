@@ -1,0 +1,47 @@
+# /etc/rsyslog.conf Configuration File Template
+
+# Use default template for sending messages
+$ActionFileDefaultTemplate RSYSLOG_TraditionalFileFormat
+
+# Set the timezone to America/Sao_Paulo for logging purposes
+$LocalTimeZone +03:00  # Brasilia Timezone (UTC-3)
+
+# Define a higher log file precision (ISO 8601 format)
+$ActionFileDefaultTemplate RSYSLOG_FileFormat
+
+# Increase the message size limit to handle larger logs (e.g., for Docker)
+$MaxMessageSize 64k
+
+# Set up action for logging to /var/log/syslog
+*.info;mail.none;authpriv.none;cron.none /var/log/syslog
+
+# Log authpriv separately
+authpriv.* /var/log/auth.log
+
+# Cron logs
+cron.* /var/log/cron.log
+
+# Log mail-related messages
+mail.* -/var/log/mail.log
+
+# Log kernel-related messages separately
+kern.* /var/log/kern.log
+
+# Log daemon messages
+daemon.* /var/log/daemon.log
+
+# Log user activity
+user.* /var/log/user.log
+
+# Emergency level messages go to all users
+*.emerg :omusrmsg:*
+
+# Security logs
+local7.* /var/log/security.log
+
+# Include local configuration files
+$IncludeConfig /etc/rsyslog.d/*.conf
+
+# Enable rate-limiting for preventing log floods (1000 messages in 5 seconds)
+$SystemLogRateLimitInterval 5
+$SystemLogRateLimitBurst 1000

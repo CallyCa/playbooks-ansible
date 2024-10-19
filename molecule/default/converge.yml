@@ -1,5 +1,47 @@
 ---
 - name: Converge
   hosts: all
+  become: true
+  gather_facts: true  # Garante que as informações do sistema-alvo sejam coletadas
+  strategy: free  # Permite que as tarefas sejam executadas em paralelo sem esperar que todas sejam concluídas
+  vars:
+    default_user: "{{ lookup('env', 'USER') | default('default_user') }}"  # Define o usuário padrão, se não for encontrado
+
+  pre_tasks:
+    # - name: Ensure Ansible is running with sufficient privileges
+    #   ansible.builtin.assert:
+    #     that: ansible_become is defined and ansible_become == true
+    #     fail_msg: "Ansible is not running with become=true. Please run with elevated privileges."
+    #   when: not ansible_check_mode
+
+    # - name: Ensure necessary packages are installed
+    #   ansible.builtin.package:
+    #     name: "{{ item }}"
+    #     state: present
+    #   loop:
+    #     - sudo
+    #     - curl
+    #     - unzip
+
   roles:
     - role: template-role-ansible
+      tags: 
+        - always  # Isso garante que a role será sempre executada, mesmo em execuções com tags
+
+  post_tasks:
+    - name: Check disk space usage after convergence
+      ansible.builtin.shell: df -h
+      register: disk_usage
+
+    - name: Display disk usage information
+      ansible.builtin.debug:
+        msg: "{{ disk_usage.stdout }}"
+
+    - name: Verify if any important services are down
+      ansible.builtin.service_facts:
+
+    - name: Display the status of critical services
+      ansible.builtin.debug:
+        msg: "{{ item.key }} is in state {{ item.value.state }}"
+      loop: "{{ ansible_facts.services | dict2items }}"
+      when: item.value.state is defined and item.value.state != 'running'

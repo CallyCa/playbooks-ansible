@@ -7,15 +7,18 @@
       ansible.builtin.shell:
         cmd: 'echo "deb http://linux.teamviewer.com/deb stable main" >> /etc/apt/sources.list.d/teamviewer.list'
         # warn: false
+
     - name: Install Teamviewer Key
       become: true
       ansible.builtin.apt_key:
         url: "https://download.teamviewer.com/download/linux/signature/TeamViewer2017.asc"
         state: present
+
     - name: Updating repositories
       become: true
       ansible.builtin.apt:
         update_cache: true
+
     - name: Installing Teamviewer
       become: true
       ansible.builtin.apt:

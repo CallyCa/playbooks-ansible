@@ -1,24 +1,100 @@
 ---
 - name: Verify
   hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    expected_shell: "/bin/zsh"
+
   tasks:
     - name: Check if vim is installed
-      command: vim --version
-      register: result
-      failed_when: result.rc != 0
+      ansible.builtin.command: vim --version
+      register: vim_result
+      failed_when:
+        - vim_result.rc != 0
+        - "'command not found' in vim_result.stdout"
+      changed_when: false
+      ignore_errors: false
+      tags:
+        - always
+
+    - name: Debug Vim version
+      ansible.builtin.debug:
+        msg: "Vim version installed: {{ vim_result.stdout }}"
+      when: vim_result.rc == 0
+
     - name: Check if docker service is running
-      service_facts:
-      register: services
-    - name: Assert docker is running
-      assert:
+      ansible.builtin.service_facts:
+      register: docker_services
+
+    - name: Assert docker service is running
+      ansible.builtin.assert:
         that:
-          - "'docker' in services.ansible_facts.services"
-          - "services.ansible_facts.services['docker'].state == 'running'"
+          - "'docker' in docker_services.ansible_facts.services"
+          - "docker_services.ansible_facts.services['docker'].state == 'running'"
+        fail_msg: "Docker service is not running."
+        success_msg: "Docker service is running."
+      tags:
+        - docker
+        - critical
+
     - name: Check if zsh is default shell
-      command: echo $SHELL
+      ansible.builtin.shell: echo $SHELL
       register: shell_result
       changed_when: false
+      tags:
+        - shell
+
+    - name: Debug current shell
+      ansible.builtin.debug:
+        msg: "Current shell: {{ shell_result.stdout }}"
+
     - name: Assert zsh is default shell
-      assert:
+      ansible.builtin.assert:
         that:
-          - "shell_result.stdout == '/bin/zsh'"
+          - "shell_result.stdout == expected_shell"
+        fail_msg: "ZSH is not the default shell. Current shell: {{ shell_result.stdout }}"
+        success_msg: "ZSH is the default shell."
+      tags:
+        - shell
+        - critical
+
+    - name: Additional check - Disk usage
+      ansible.builtin.command: df -h
+      register: disk_usage
+      changed_when: false
+
+    - name: Debug disk usage
+      ansible.builtin.debug:
+        msg: "{{ disk_usage.stdout }}"
+      tags:
+        - optional
+
+    - name: Verify memory usage
+      ansible.builtin.command: free -h
+      register: memory_info
+      changed_when: false
+
+    - name: Display memory information
+      ansible.builtin.debug:
+        msg: "{{ memory_info.stdout }}"
+      tags:
+        - optional
+
+    - name: Ensure no critical services are down
+      ansible.builtin.service_facts:
+
+    - name: List any services not running
+      ansible.builtin.debug:
+        msg: "Service {{ item.name }} is in state {{ item.state }}"
+      loop: "{{ ansible_facts.services | dict2items }}"
+      when: "item.state != 'running'"
+      tags:
+        - critical
+
+    - name: Fail if critical services are down
+      ansible.builtin.fail:
+        msg: "Critical services are not running."
+      when: "'docker' not in docker_services.ansible_facts.services or docker_services.ansible_facts.services['docker'].state != 'running'"
+      tags:
+        - critical

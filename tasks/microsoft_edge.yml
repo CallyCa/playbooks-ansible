@@ -1,0 +1,15 @@
+---
+- name: Download Microsoft Edge DEB package
+  ansible.builtin.get_url:
+    url: "https://go.microsoft.com/fwlink?linkid=2149051&brand=M102"
+    dest: "/tmp/microsoft-edge-stable_amd64.deb"
+
+- name: Install Microsoft Edge from DEB package
+  ansible.builtin.apt:
+    deb: "/tmp/microsoft-edge-stable_amd64.deb"
+    state: present
+
+- name: Clean up DEB package
+  ansible.builtin.file:
+    path: "/tmp/microsoft-edge-stable_amd64.deb"
+    state: absent

@@ -1,36 +1,20 @@
 # Google Chrome
 ---
-- name: Install Google Chrome
-  block:
-    - name: Install Google Key
-      become: true
-      ansible.builtin.apt_key:
-        url: "https://dl.google.com/linux/linux_signing_key.pub"
-        state: present
+- name: Download Google Chrome .deb package
+  become: true
+  ansible.builtin.get_url:
+    url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest: "/tmp/google-chrome-stable_current_amd64.deb"
 
-    - name: Install Google Repository
-      become: true
-      ansible.builtin.shell:
-        cmd: 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+- name: Install Google Chrome from downloaded .deb
+  become: true
+  ansible.builtin.apt:
+    deb: "/tmp/google-chrome-stable_current_amd64.deb"
+    state: present
 
-    - name: Clear APT cache
-      become: true
-      ansible.builtin.shell:
-        cmd: "apt-get clean"
-
-    - name: Configure APT to retry
-      become: true
-      ansible.builtin.shell:
-        cmd: 'echo "Acquire::Retries 3;" > /etc/apt/apt.conf.d/80-retries'
-
-    - name: Updating repositories
-      become: true
-      ansible.builtin.apt:
-        update_cache: true
-        cache_valid_time: 3600
-
-    - name: Install Google Chrome
-      become: true
-      ansible.builtin.apt:
-        name: google-chrome-stable
-        state: present
+- name: Ensure Google Chrome is installed
+  ansible.builtin.command:
+    cmd: "google-chrome --version"
+  register: chrome_installed
+  changed_when: false
+  failed_when: chrome_installed.rc != 0

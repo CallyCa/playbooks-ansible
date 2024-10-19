@@ -1,10 +1,17 @@
 ---
-ansible_user_id: "{{ lookup('env', 'USER') }}"
+# Usuário padrão, obtido do ambiente
+ansible_user_id: "{{ lookup('env', 'USER') | default('default_user') }}"
+
+# Lista de pacotes comuns para serem instalados
 common_packages:
   - vim
   - htop
   - curl
+  - build-essential
   - wget
+  - apparmor
+  - lxc
+  - cgroup-lite
   - ncdu
   - tree
   - apt-transport-https
@@ -15,6 +22,8 @@ common_packages:
   - git
   - bash-completion
   - gnupg-agent
+  - openssh-client
+  - openssh-server
   - zsh
   - virtualbox
   - mlocate
@@ -23,3 +32,41 @@ common_packages:
   - mtr
   - snapd
   - flatpak
+
+# Versão do Oracle JDK a ser instalada
+oracle_jdk_version: "11.0.24"
+oracle_jdk_tar: "jdk-{{ oracle_jdk_version }}_linux-x64_bin.tar.gz"
+oracle_jdk_url: "https://download.oracle.com/otn/java/jdk/{{ oracle_jdk_version }}/binaries/{{ oracle_jdk_tar }}"
+
+# Caminho do cache para o Oracle JDK
+oracle_jdk_cache_dir: "/var/cache/oracle-jdk{{ oracle_jdk_version }}-installer-local"
+
+# Pacotes para instalação do LaTeX
+latex_packages:
+  - texlive-full # Pacote completo do LaTeX
+  - texlive-latex-extra # Pacotes extras do LaTeX
+  - texlive-science # Pacotes científicos e para matemática avançada
+  - texlive-fonts-extra # Fontes extras para LaTeX
+  - texlive-lang-portuguese # Suporte ao português
+  - biber # Ferramenta de gerenciamento de bibliografia
+  - latexmk # Automação de compilação de LaTeX
+  - pandoc # Conversor de documentos
+  - xzdec # Descompressor usado por alguns pacotes do LaTeX
+
+# Variáveis relacionadas ao Ruby e gerenciadores de versões (Rbenv e RVM)
+ruby_version: "{{ lookup('env', 'RUBY_VERSION') | default('3.0.7') }}" # Versão do Ruby via Rbenv
+rbenv_version: "{{ ruby_version }}" # Mesma versão do Ruby para instalação com Rbenv
+rvm_version: "{{ lookup('env', 'RVM_VERSION') | default('ruby') }}" # Versão do Ruby com RVM (última estável por padrão)
+
+# Repositórios do Rbenv e Ruby-build
+rbenv_repo: "https://github.com/rbenv/rbenv.git"
+ruby_build_repo: "https://github.com/rbenv/ruby-build.git"
+
+# Caminhos para configuração de Rbenv e RVM no shell
+zshrc_path: "{{ ansible_env.HOME }}/.zshrc" # Caminho do .zshrc para configurar o ambiente
+rbenv_path: "{{ ansible_env.HOME }}/.rbenv" # Caminho onde o Rbenv será instalado
+rvm_script_path: "{{ ansible_env.HOME }}/.rvm/scripts/rvm" # Caminho para o script do RVM
+
+# Versão do OpenSSL
+openssl_version: "3.3.2"
+openssl_install_dir: "/usr/local/openssl-{{ openssl_version }}" # Caminho de instalação do OpenSSL

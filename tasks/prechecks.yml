@@ -1,10 +1,90 @@
 ---
-- name: Check available disk space
+- name: Check available disk space on root partition
   ansible.builtin.command: df -h /
   register: disk_space
   failed_when: disk_space.stdout.find('100%') != -1
+  changed_when: false
+  tags: precheck
+
+- name: Check available memory
+  ansible.builtin.command: free -h
+  register: memory_status
+  changed_when: false
+  tags: precheck
+
+# - name: Ensure free memory is above threshold (500MB)
+#   ansible.builtin.assert:
+#     that:
+#       - (memory_status.stdout | regex_search('Mem:\s+\S+\s+\S+\s+\S+ (\d+)M') | int) > 500
+#   tags: precheck
+
+- name: Check available CPU cores
+  ansible.builtin.command: nproc
+  register: cpu_cores
+  changed_when: false
+  tags: precheck
+
+# - name: Ensure minimum of 2 CPU cores
+#   ansible.builtin.assert:
+#     that:
+#       - cpu_cores.stdout | int >= 2
+#   tags: precheck
+
+- name: Check if swap memory is enabled
+  ansible.builtin.command: swapon --show
+  register: swap_status
+  changed_when: false
+  tags: precheck
+
+- name: Ensure swap memory is enabled
+  ansible.builtin.assert:
+    that:
+      - swap_status.stdout != ""
+    fail_msg: "Swap memory is not enabled"
+  tags: precheck
 
 - name: Ensure python3-pip is installed
   ansible.builtin.apt:
     name: python3-pip
     state: present
+  tags: precheck
+
+# - name: Check if Ansible is running as root
+#   ansible.builtin.assert:
+#     that:
+#       - ansible_user_id == 'root'
+#     fail_msg: "This playbook must be run as root"
+#   tags: precheck
+
+# - name: Check if internet connection is available
+#   ansible.builtin.uri:
+#     url: "http://www.google.com"
+#     method: HEAD
+#     return_content: no
+#   register: internet_status
+#   failed_when: internet_status.status != 200
+#   tags: precheck
+
+- name: Check if APT cache is up-to-date
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: precheck
+# - name: Ensure the server has at least 10GB of disk space available
+#   ansible.builtin.command: df --output=avail / | tail -n1
+#   register: root_disk_space
+#   failed_when: root_disk_space.stdout | int < 10485760 # 10GB in KB
+#   tags: precheck
+
+# - name: Ensure there are no failed services
+#   ansible.builtin.systemd:
+#     state: failed
+#   register: failed_services
+#   failed_when: failed_services.status != "ok"
+#   tags: precheck
+
+# - name: Ensure system has a hostname set
+#   ansible.builtin.command: hostname
+#   register: hostname_status
+#   failed_when: hostname_status.stdout == ""
+#   tags: precheck

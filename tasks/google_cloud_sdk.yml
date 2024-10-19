@@ -5,12 +5,14 @@
   ansible.builtin.apt_key:
     url: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
     state: present
+
 - name: Install Google Cloud SDK Repository
   become: true
   ansible.builtin.apt_repository:
     repo: "deb [arch=amd64] https://packages.cloud.google.com/apt cloud-sdk main"
     state: present
     filename: google-cloud-sdk
+
 - name: Install Google Cloud SDK
   become: true
   ansible.builtin.apt:

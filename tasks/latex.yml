@@ -1,0 +1,18 @@
+---
+# - name: Update package cache
+#   ansible.builtin.apt:
+#     update_cache: true
+
+- name: Install LaTeX packages and auxiliary tools
+  ansible.builtin.apt:
+    name: "{{ latex_packages }}"
+    state: present
+
+- name: Verify if LaTeX is correctly installed
+  ansible.builtin.command:
+    cmd: "pdflatex --version"
+  register: latex_version
+
+- name: Display installed LaTeX version
+  ansible.builtin.debug:
+    msg: "Installed LaTeX version: {{ latex_version.stdout }}"

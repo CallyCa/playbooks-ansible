@@ -1,8 +1,12 @@
----
 dependency:
   name: galaxy
+  options:
+    ignore-certs: true # Caso queira ignorar certificados, remova se não for necessário
+  requirements_file: requirements.yml # Caso tenha dependências específicas
+
 driver:
   name: docker
+
 platforms:
   - name: ubuntu
     image: "geerlingguy/docker-${MOLECULE_DISTRO:-ubuntu2004}-ansible:latest"
@@ -11,21 +15,52 @@ platforms:
     privileged: true
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock # Para habilitar Docker in Docker (DinD), caso necessário
+      - ./data:/mnt/data # Monta uma pasta local para compartilhamento de dados, se necessário
     environment:
-      USER: "{{ lookup('env', 'USER') }}"
-      HOME: "/home/{{ lookup('env', 'USER') }}"
+      USER: "{{ lookup('env', 'USER') | default('default_user') }}" # Usa variável de ambiente ou valor default
+      HOME: "/home/{{ lookup('env', 'USER') | default('default_user') }}" # Ajusta o diretório HOME dinamicamente
+      ANSIBLE_DEPRECATION_WARNINGS: "false" # Desativa avisos de depreciação, ajuste conforme necessário
+      ANSIBLE_FORCE_COLOR: "true" # Força a colorização no output
+
+    capabilities:
+      - NET_ADMIN # Habilita capacidades avançadas como controle de redes
+
     pre_tasks:
-      - name: Create user calendario2009
-        command: useradd -m -s /bin/bash "{{ lookup('env', 'USER') }}"
-      - name: Set password for calendario2009
-        command: echo '{{ lookup('env', 'USER') }}:password' | chpasswd
-      - name: Create home directory for calendario2009
-        file:
-          path: "/home/{{ lookup('env', 'USER') }}"
+      - name: Create user calendario2009 if it doesn't exist
+        command: id -u "{{ lookup('env', 'USER') | default('default_user') }}" || useradd -m -s /bin/bash "{{ lookup('env', 'USER') | default('default_user') }}"
+        ignore_errors: true
+
+      - name: Set password for the user
+        ansible.builtin.command: echo '{{ lookup('env', 'USER') | default('default_user') }}:password' | chpasswd
+
+      - name: Create home directory for the user with proper permissions
+        ansible.builtin.file:
+          path: "/home/{{ lookup('env', 'USER') | default('default_user') }}"
           state: directory
-          owner: "{{ lookup('env', 'USER') }}"
-          group: "{{ lookup('env', 'USER') }}"
+          owner: "{{ lookup('env', 'USER') | default('default_user') }}"
+          group: "{{ lookup('env', 'USER') | default('default_user') }}"
+          mode: "0755"
+
+      - name: Set up sudoers for the user
+        ansible.builtin.lineinfile:
+          path: /etc/sudoers
+          state: present
+          regexp: "^{{ lookup('env', 'USER') | default('default_user') }}"
+          line: "{{ lookup('env', 'USER') | default('default_user') }} ALL=(ALL) NOPASSWD:ALL"
+
 provisioner:
   name: ansible
+  log: true # Ativa o log detalhado para debug
+  config_options:
+    defaults:
+      host_key_checking: false # Desativa verificação de chave SSH (melhor apenas em ambientes de teste)
+  playbooks:
+    converge: converge.yml # Playbook a ser utilizado
+  options:
+    verbose: "-vvv" # Nível de verbosidade para debug
+
 verifier:
   name: ansible
+  options:
+    verbose: true # Ativa saída detalhada durante a verificação

@@ -1,6 +1,61 @@
 # Handlers
 ---
 - name: restart docker
-  ansible.builtin.service:
-    name: docker
-    state: restarted
+  block:
+    - name: Check if running inside Docker
+      ansible.builtin.command: cat /proc/1/cgroup
+      register: docker_check
+      changed_when: false
+      failed_when: false
+
+    - name: Restart Docker using systemctl (non-Docker environments)
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+      when: "'/docker' not in docker_check.stdout"
+
+    - name: Restart Docker using Docker command (inside Docker)
+      ansible.builtin.command:
+        cmd: docker restart "$(hostname)"
+      when: "'/docker' in docker_check.stdout"
+  rescue:
+    - name: Log failure to restart Docker
+      ansible.builtin.debug:
+        msg: "Failed to restart Docker. Check manually."
+
+- name: restart rsyslog
+  block:
+    - name: Check if running inside Docker
+      ansible.builtin.command: cat /proc/1/cgroup
+      register: docker_check_rsyslog
+      changed_when: false
+      failed_when: false # Não falha se não puder verificar Docker
+
+    - name: Restart rsyslog using systemctl (non-Docker environments)
+      ansible.builtin.service:
+        name: rsyslog
+        state: restarted
+      when: "'/docker' not in docker_check_rsyslog.stdout"
+
+    - name: Skip rsyslog restart (inside Docker)
+      ansible.builtin.debug:
+        msg: "Skipping rsyslog restart, not applicable in Docker."
+      when: "'/docker' in docker_check_rsyslog.stdout"
+
+- name: restart openvpn
+  block:
+    - name: Check if running inside Docker
+      ansible.builtin.command: cat /proc/1/cgroup
+      register: docker_check_openvpn
+      changed_when: false
+      failed_when: false # Não falha se não puder verificar Docker
+
+    - name: Restart OpenVPN using systemctl (non-Docker environments)
+      ansible.builtin.command:
+        cmd: service openvpn@server restart
+      when: "'/docker' not in docker_check_openvpn.stdout"
+
+    - name: Skip OpenVPN restart (inside Docker)
+      ansible.builtin.debug:
+        msg: "Skipping OpenVPN restart, not applicable in Docker."
+      when: "'/docker' in docker_check_openvpn.stdout"

@@ -1,9 +1,15 @@
 ---
-- name: Generate report
-  ansible.builtin.command: ./generate_report.sh
-  register: report_output
-
-- name: Save report to file
+- name: Copy generate_report.sh to the target machine
   ansible.builtin.copy:
-    content: "{{ report_output.stdout }}"
-    dest: /var/log/ansible/report.txt
+    src: files/generate_report.sh
+    dest: /usr/local/bin/generate_report.sh
+    mode: "0755"
+
+- name: Generate report
+  ansible.builtin.command: /usr/local/bin/generate_report.sh
+
+- name: Fetch the generated report
+  ansible.builtin.fetch:
+    src: /var/log/ansible_report.txt
+    dest: ./reports/ansible_report.txt
+    flat: yes

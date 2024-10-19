@@ -5,6 +5,7 @@
   ansible.builtin.apt_repository:
     repo: "ppa:ernstp/mesarc"
     state: present
+
 - name: Installing CoreCtrl
   become: true
   ansible.builtin.apt:

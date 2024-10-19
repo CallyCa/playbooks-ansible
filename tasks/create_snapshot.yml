@@ -1,3 +1,20 @@
 ---
-- name: Create VM snapshot
-  command: "vmware-cmd -H vmhost -U user -P password createsnapshot myvm 'Snapshot before update' 'Snapshot created by Ansible' 0 0"
+- name: Check if the logical volume exists
+  ansible.builtin.command: "lvdisplay /dev/ubuntu-vg/root"
+  register: lv_check
+  failed_when: lv_check.rc != 0
+  ignore_errors: false
+
+- name: Create LVM snapshot for Ubuntu/Debian
+  ansible.builtin.command: >
+    lvcreate -L 1G -s -n root_snapshot /dev/ubuntu-vg/root
+  when: lv_check.rc == 0
+
+- name: Verify if the snapshot was created
+  ansible.builtin.command: "lvdisplay /dev/ubuntu-vg/root_snapshot"
+  register: snapshot_check
+  failed_when: snapshot_check.rc != 0
+
+- name: Display snapshot details
+  debug:
+    var: snapshot_check.stdout

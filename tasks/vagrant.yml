@@ -1,8 +1,20 @@
-# Vagrant
+# Vagrant Installation
 ---
-- name: Install Vagrant 2.2.19
+- name: Download Vagrant 2.4.1 .deb package
   become: true
-  ansible.builtin.unarchive:
-    src: "https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_linux_amd64.zip"
-    dest: /usr/local/bin
-    remote_src: true
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/vagrant/2.4.1/vagrant_2.4.1-1_amd64.deb"
+    dest: "/tmp/vagrant_2.4.1-1_amd64.deb"
+
+- name: Install Vagrant 2.4.1 from .deb package
+  become: true
+  ansible.builtin.apt:
+    deb: "/tmp/vagrant_2.4.1-1_amd64.deb"
+
+- name: Verify Vagrant installation
+  ansible.builtin.command: vagrant --version
+  register: vagrant_version_check
+
+- name: Display Vagrant version
+  debug:
+    var: vagrant_version_check.stdout

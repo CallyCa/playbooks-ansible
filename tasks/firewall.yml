@@ -1,21 +1,58 @@
 ---
 - name: Install UFW
-  apt:
+  ansible.builtin.apt:
     name: ufw
     state: present
+
+- name: Ensure IPv6 is enabled in UFW
+  ansible.builtin.lineinfile:
+    path: /etc/default/ufw
+    regexp: "^IPV6="
+    line: "IPV6=yes"
+    state: present
+
+# - name: Load ip6_tables kernel module
+#   ansible.builtin.shell: modprobe ip6_tables
+#   ignore_errors: true
+
+# - name: Check if ip6_tables module is loaded
+#   ansible.builtin.command: lsmod | grep ip6_tables
+#   register: ip6tables_module_check
+#   failed_when: ip6tables_module_check.rc != 0
+#   ignore_errors: true
+
+# - name: Debug kernel module check
+#   debug:
+#     var: ip6tables_module_check.stdout
+
+- name: Reload UFW Configuration
+  ansible.builtin.command: ufw reload
 
 - name: Allow SSH connections
   ufw:
     rule: allow
-    name: OpenSSH
+    port: 22
+    proto: tcp
 
-- name: Allow HTTP and HTTPS connections
+- name: Allow specific ports for IPv4 and IPv6
   ufw:
     rule: allow
     port: "{{ item }}"
   loop:
-    - "80"
-    - "443"
+    - "8888"
+    - "9200"
+    - "5044"
+    - "9200/tcp"
+    - "5044/tcp"
+    - "9600"
+    - "4713"
+    - "27017"
+    - "7199"
+    - "9042"
+    - "24800"
+    - "9295"
+    - "50051"
+    - "9090/tcp"
 
 - name: Enable UFW
   ufw:

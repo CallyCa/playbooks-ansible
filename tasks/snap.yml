@@ -22,6 +22,12 @@
 #     - mailspring
 #     - drawio
 #     - gnome-logs
+#     - insomnia
+#     - figma-linux
+#     - drawio
+#     - discord
+#     - obs-studio
+#     - telegram-desktop
 
 # - name: Snap install packages with tag classic
 #   become: true
