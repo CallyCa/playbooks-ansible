@@ -8,6 +8,8 @@
     - libgl1-mesa-dev
     - libglu1-mesa-dev
     - mesa-common-dev
+    - build-essential
+    - libssl-dev
   tags:
     - qt6
 
@@ -34,30 +36,34 @@
   tags:
     - qt6
 
-- name: Run configure for Qt6
+- name: Run configure for Qt6 with all required modules
   ansible.builtin.command:
-    cmd: "./configure"
-    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
+    cmd: "./configure -opensource -confirm-license -nomake tests -nomake examples -skip qtwebengine"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}"
   tags:
     - qt6
 
 - name: Compile Qt6 using multiple cores
   ansible.builtin.command:
     cmd: "make -j{{ ansible_processor_cores | default(2) }}"
-    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}"
   tags:
     - qt6
 
 - name: Install Qt6
   ansible.builtin.command:
     cmd: "make install"
-    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}"
   tags:
     - qt6
 
 - name: Set environment variable for Qt6
   ansible.builtin.shell: |
-    export Qt6_DIR="/opt/qt-everywhere-src-{{ qt6_subversion }}/lib/cmake/Qt6"
-    export Qt6Widgets_DIR="/opt/qt-everywhere-src-{{ qt6_subversion }}/lib/cmake/Qt6Widgets"
+    export Qt6_DIR="/usr/local/Qt-{{ qt6_subversion }}/lib/cmake/Qt6"
+    export Qt6Widgets_DIR="/usr/local/Qt-{{ qt6_subversion }}/lib/cmake/Qt6Widgets"
+    export CMAKE_PREFIX_PATH="/usr/local/Qt-{{ qt6_subversion }}/lib/cmake"
+    cmake -S. -Bbuild
+  args:
+    chdir: /opt/input-leap
   tags:
-    - qt6
+    - build
