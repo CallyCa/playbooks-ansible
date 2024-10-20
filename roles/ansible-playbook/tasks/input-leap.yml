@@ -14,13 +14,9 @@
     - libice-dev
     - libsm-dev
     - libssl-dev
-    - qt6-base-dev
-    - qt6-base-dev-tools
-    - qt6-gui-dev
-    - qt6-widgets-dev
-    - qt6-widgets-tools
-    - qt6-l10n-tools
-    - qt6-guitools
+    - libgl1-mesa-dev
+    - libglu1-mesa-dev
+    - mesa-common-dev
   tags:
     - packages
 

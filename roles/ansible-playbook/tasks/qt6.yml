@@ -54,3 +54,10 @@
     chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
   tags:
     - qt6
+
+- name: Set environment variable for Qt6
+  ansible.builtin.shell: |
+    export Qt6_DIR="/opt/qt-everywhere-src-{{ qt6_subversion }}/lib/cmake/Qt6"
+    export Qt6Widgets_DIR="/opt/qt-everywhere-src-{{ qt6_subversion }}/lib/cmake/Qt6Widgets"
+  tags:
+    - qt6
