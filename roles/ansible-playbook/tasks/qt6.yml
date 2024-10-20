@@ -13,23 +13,23 @@
 
 - name: Download and install Qt6 {{ qt6_version }}
   ansible.builtin.get_url:
-    url: "https://download.qt.io/official_releases/qt/{{ qt6_version | regex_replace('^([0-9]+\\.[0-9]+).*$', '6.7') }}/{{ qt6_version }}/single/qt-everywhere-src-{{ qt6_version }}.tar.xz"
-    dest: "/tmp/qt-everywhere-src-{{ qt6_version }}.tar.xz"
+    url: "https://download.qt.io/official_releases/qt/{{ qt6_version | regex_replace('^([0-9]+\\.[0-9]+).*$', '6.7') }}/{{ qt6_subversion }}/single/qt-everywhere-src-{{ qt6_subversion }}.tar.xz"
+    dest: "/tmp/qt-everywhere-src-{{ qt6_subversion }}.tar.xz"
     mode: "0755"
   tags:
     - qt6
 
 - name: Extract Qt6 archive
   ansible.builtin.unarchive:
-    src: "/tmp/qt-everywhere-src-{{ qt6_version }}.tar.xz"
+    src: "/tmp/qt-everywhere-src-{{ qt6_subversion }}.tar.xz"
     dest: "/opt"
     remote_src: yes
   tags:
     - qt6
 
-- name: Compile and install Qt6 {{ qt6_version }}
+- name: Compile and install Qt6 {{ qt6_subversion }}
   ansible.builtin.command:
     cmd: "./configure && make && make install"
-    chdir: "/opt/qt-everywhere-src-{{ qt6_version }}"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}"
   tags:
     - qt6
