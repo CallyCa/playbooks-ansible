@@ -58,7 +58,7 @@ Este projeto já está configurado para ser executado em `localhost`, o que sign
 Para executar o playbook diretamente no host local:
 
 ```bash
-ansible-playbook playbook.yml
+ansible-playbook -i tests/inventory playbook.yml --connection=local --ask-become-pass
 ```
 
 Isso aplicará o playbook na máquina local usando o Ansible com `localhost` como alvo por padrão.

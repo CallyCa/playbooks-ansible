@@ -27,9 +27,30 @@
   tags:
     - qt6
 
-- name: Compile and install Qt6 {{ qt6_subversion }}
+- name: Create build directory for Qt6
+  ansible.builtin.file:
+    path: "/opt/qt-everywhere-src-{{ qt6_subversion }}/build"
+    state: directory
+  tags:
+    - qt6
+
+- name: Run configure for Qt6
   ansible.builtin.command:
-    cmd: "./configure && make && make install"
-    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}"
+    cmd: "./configure"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
+  tags:
+    - qt6
+
+- name: Compile Qt6
+  ansible.builtin.command:
+    cmd: "make"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
+  tags:
+    - qt6
+
+- name: Install Qt6
+  ansible.builtin.command:
+    cmd: "make install"
+    chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
   tags:
     - qt6
