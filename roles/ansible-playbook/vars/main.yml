@@ -103,7 +103,7 @@ flutter_version: "3.24.1-stable"
 balena_etcher_version: "1.19.25"
 
 # CMake installation version
-cmake_version: "v3.30.5"
+cmake_version: "3.30.5"
 
 # Qt6 installation version
 qt6_version: "6.7"
