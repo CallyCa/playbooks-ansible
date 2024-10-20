@@ -17,17 +17,16 @@
   tags:
     - packages
 
-- name: Add Kitware's GPG key (to fix GPG error)
-  ansible.builtin.apt_key:
+- name: Download and add Kitware GPG key to /usr/share/keyrings
+  ansible.builtin.get_url:
     url: https://apt.kitware.com/keys/kitware-archive-latest.asc
-    state: present
+    dest: /usr/share/keyrings/kitware-archive-keyring.gpg
   tags:
     - cmake
 
-- name: Add Kitware APT repository for CMake
+- name: Add Kitware APT repository with signed-by option
   ansible.builtin.apt_repository:
-    repo: "deb https://apt.kitware.com/ubuntu/ {{ ansible_distribution_release }} main"
-    state: present
+    repo: "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ {{ ansible_distribution_release }} main"
     filename: kitware
   tags:
     - cmake
@@ -40,9 +39,10 @@
   tags:
     - cmake
 
-- name: Add Qt6 PPA repository
+- name: Add Qt6 PPA repository (using focal for compatibility)
   ansible.builtin.apt_repository:
     repo: "ppa:okirby/qt6-backports"
+    codename: "focal" # Force compatibility with Ubuntu Focal (20.04)
     state: present
   tags:
     - qt6
@@ -135,9 +135,8 @@
     creates: /root/.local/share/InputLeap/SSL/InputLeap.pem
   tags:
     - ssl
-
-- name: Run SSL fingerprint generation script
-  ansible.builtin.command:
-    cmd: /usr/local/bin/generate_fingerprint.sh
-  tags:
-    - ssl
+# - name: Run SSL fingerprint generation script
+#   ansible.builtin.command:
+#     cmd: /usr/local/bin/generate_fingerprint.sh
+#   tags:
+#     - ssl
