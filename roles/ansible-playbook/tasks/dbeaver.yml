@@ -1,0 +1,77 @@
+---
+- name: Update package repository cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Add DBeaver GPG key
+  become: true
+  ansible.builtin.get_url:
+    url: "https://dbeaver.io/debs/dbeaver.gpg.key"
+    dest: "/usr/share/keyrings/dbeaver.gpg.key"
+    mode: "0644"
+
+- name: Add DBeaver repository to APT sources
+  become: true
+  ansible.builtin.shell: |
+    echo "deb [signed-by=/usr/share/keyrings/dbeaver.gpg.key] https://dbeaver.io/debs/dbeaver-ce /" | sudo tee /etc/apt/sources.list.d/dbeaver.list
+
+- name: Update APT package repository
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install DBeaver CE
+  become: true
+  ansible.builtin.apt:
+    name: dbeaver-ce
+    state: present
+
+- name: Check if Java is installed
+  become: true
+  ansible.builtin.command: java -version
+  register: java_installed
+  ignore_errors: true
+
+- name: Ensure /usr/share/man/man1/ directory exists
+  become: true
+  ansible.builtin.file:
+    path: /usr/share/man/man1/
+    state: directory
+    mode: "0755"
+
+- name: Force configure any failed dpkg packages
+  become: true
+  ansible.builtin.command:
+    cmd: dpkg --configure -a
+  ignore_errors: true
+
+- name: Attempt to fix broken packages
+  become: true
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    force: yes
+    update_cache: yes
+
+- name: Install OpenJDK if not installed
+  become: true
+  ansible.builtin.apt:
+    name: openjdk-11-jdk
+    state: present
+
+- name: Install OpenJDK if Java is not installed
+  become: true
+  ansible.builtin.apt:
+    name: openjdk-11-jdk
+    state: present
+  when: java_installed.failed
+
+- name: Verify DBeaver installation
+  become: true
+  ansible.builtin.command: dbeaver -version
+  register: dbeaver_version
+
+- name: Show installed DBeaver version
+  ansible.builtin.debug:
+    msg: "DBeaver version installed: {{ dbeaver_version.stdout_lines }}"

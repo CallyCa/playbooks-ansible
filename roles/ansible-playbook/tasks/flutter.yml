@@ -1,0 +1,64 @@
+---
+- name: Install development tools for Flutter
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - unzip
+      - xz-utils
+      - zip
+      - libglu1-mesa
+    state: present
+
+- name: Install Android prerequisites for Android Studio
+  become: true
+  ansible.builtin.apt:
+    name:
+      - libc6:amd64
+      - libstdc++6:amd64
+      - lib32z1
+      - libbz2-1.0:amd64
+    state: present
+
+- name: Download Flutter SDK
+  become: true
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}.tar.xz"
+    dest: "/tmp/flutter_linux_{{ flutter_version }}.tar.xz"
+
+- name: Extract Flutter SDK
+  become: true
+  ansible.builtin.unarchive:
+    src: "/tmp/flutter_linux_{{ flutter_version }}.tar.xz"
+    dest: "/opt"
+    remote_src: yes
+
+- name: Ensure .zshrc exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    state: touch
+
+- name: Set up Flutter, Java, and Android SDK paths in .zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: "{{ item }}"
+    create: yes
+  with_items:
+    - "export PATH=$JAVA_HOME/bin:$PATH"
+    - "export JAVA_HOME"
+    - "export ANDROID_HOME=$HOME/Android/Sdk"
+    - "export PATH=$PATH:$ANDROID_HOME/tools"
+    - "export PATH=$PATH:$ANDROID_HOME/tools/bin"
+    - "export PATH=$PATH:$ANDROID_HOME/platform-tools"
+    - "export PATH=$ANDROID_HOME/cmdline-tools/tools/bin:$PATH"
+    - "export PATH=/opt/flutter/bin:$PATH"
+
+- name: Run flutter doctor to verify installation
+  ansible.builtin.shell: |
+    source {{ ansible_env.HOME }}/.zshrc && flutter doctor
+  register: flutter_doctor_output
+
+- name: Display Flutter doctor output
+  debug:
+    var: flutter_doctor_output.stdout

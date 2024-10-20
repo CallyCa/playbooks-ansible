@@ -1,0 +1,139 @@
+---
+- name: Install Ruby dependencies
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    install_recommends: yes
+  loop:
+    - autoconf
+    - bison
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - libffi-dev
+    - libgdbm6
+    - libgdbm-dev
+    - libdb-dev
+    - curl
+    - g++
+    - gcc
+    - automake
+    - libc6-dev
+    - libtool
+    - sqlite3
+    - pkg-config
+  tags:
+    - ruby-deps
+
+# Instalação do Rbenv e Ruby via Rbenv
+- name: Install Rbenv
+  ansible.builtin.git:
+    repo: "{{ rbenv_repo }}"
+    dest: "{{ rbenv_path }}"
+  tags:
+    - rbenv
+
+- name: Install ruby-build plugin for Rbenv
+  ansible.builtin.git:
+    repo: "{{ ruby_build_repo }}"
+    dest: "{{ rbenv_path }}/plugins/ruby-build"
+  tags:
+    - rbenv
+
+- name: Add Rbenv to the Zsh environment
+  ansible.builtin.lineinfile:
+    path: "{{ zshrc_path }}"
+    regexp: 'export PATH="\$HOME/.rbenv/bin:\$PATH"'
+    line: 'export PATH="$HOME/.rbenv/bin:$PATH"'
+    state: present
+  tags:
+    - rbenv
+
+- name: Initialize Rbenv in the Zsh shell
+  ansible.builtin.lineinfile:
+    path: "{{ zshrc_path }}"
+    regexp: 'eval "\$\(rbenv init -\)"'
+    line: 'eval "$(rbenv init -)"'
+    state: present
+  tags:
+    - rbenv
+
+- name: Source the Zsh environment to apply changes
+  ansible.builtin.shell: "source {{ zshrc_path }}"
+  args:
+    executable: /bin/zsh
+  tags:
+    - rbenv
+
+- name: Install Ruby via Rbenv
+  ansible.builtin.command:
+    cmd: "rbenv install {{ rbenv_version }}"
+    creates: "{{ rbenv_path }}/versions/{{ rbenv_version }}"
+  tags:
+    - ruby
+
+- name: Set Ruby {{ rbenv_version }} as global version
+  ansible.builtin.shell: "source {{ zshrc_path }} && rbenv global {{ rbenv_version }}"
+  args:
+    executable: /bin/zsh
+  tags:
+    - ruby
+
+- name: Verify Ruby installation
+  ansible.builtin.command: ruby --version
+  register: ruby_version_check
+  tags:
+    - verify
+
+- name: Display Ruby version
+  ansible.builtin.debug:
+    msg: "Ruby version installed: {{ ruby_version_check.stdout }}"
+  tags:
+    - verify
+
+- name: Install RVM
+  ansible.builtin.shell: |
+    gpg --keyserver keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+    curl -sSL https://get.rvm.io | bash -s stable
+  tags:
+    - rvm
+
+- name: Source RVM environment in Zsh
+  ansible.builtin.lineinfile:
+    path: "{{ zshrc_path }}"
+    regexp: "source {{ rvm_script_path }}"
+    line: "source {{ rvm_script_path }}"
+    state: present
+  tags:
+    - rvm
+
+- name: Reload shell environment after RVM installation
+  ansible.builtin.shell: "source {{ zshrc_path }} && exec $SHELL -l"
+  args:
+    executable: /bin/zsh
+  tags:
+    - rvm
+
+- name: Use RVM to install Ruby {{ rvm_version }}
+  ansible.builtin.command: "rvm install {{ rvm_version }}"
+  tags:
+    - rvm
+
+- name: Set Ruby {{ rvm_version }} as the default using RVM
+  ansible.builtin.command: "rvm --default use {{ rvm_version }}"
+  tags:
+    - rvm
+
+- name: Verify Ruby installation via RVM
+  ansible.builtin.command: ruby --version
+  register: ruby_rvm_version_check
+  tags:
+    - verify
+
+- name: Display Ruby version installed with RVM
+  ansible.builtin.debug:
+    msg: "Ruby version installed with RVM: {{ ruby_rvm_version_check.stdout }}"
+  tags:
+    - verify

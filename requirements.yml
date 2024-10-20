@@ -1,9 +1,9 @@
 ---
 collections:
   - name: community.general
-    version: 7.4.0
+    version: 9.5.0
   - name: community.docker
-    version: 2.3.0
+    version: 3.13.1
 roles:
   - name: geerlingguy.docker
-    version: 3.0.0
+    version: 7.4.1

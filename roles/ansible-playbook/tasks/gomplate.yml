@@ -1,0 +1,15 @@
+---
+- name: Download and install Gomplate {{ gomplate_version }}
+  become: true
+  ansible.builtin.get_url:
+    url: "https://github.com/hairyhenderson/gomplate/releases/download/v{{ gomplate_version }}/gomplate_linux-amd64"
+    dest: /usr/local/bin/gomplate
+    mode: "0755"
+
+- name: Verify Gomplate installation
+  ansible.builtin.command: gomplate --version
+  register: gomplate_version_check
+
+- name: Display Gomplate version
+  debug:
+    var: gomplate_version_check.stdout

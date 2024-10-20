@@ -1,0 +1,34 @@
+- name: Update APT repository cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Ensure wget is installed (required for downloading)
+  ansible.builtin.apt:
+    name: wget
+    state: present
+
+- name: Download Balena Etcher .deb package
+  ansible.builtin.get_url:
+    url: "https://github.com/balena-io/etcher/releases/download/v{{ balena_etcher_version }}/balena-etcher_{{ balena_etcher_version }}_amd64.deb"
+    dest: "/tmp/balena-etcher_{{ balena_etcher_version }}_amd64.deb"
+
+- name: Install Balena Etcher from .deb package
+  ansible.builtin.apt:
+    deb: "/tmp/balena-etcher_{{ balena_etcher_version }}_amd64.deb"
+
+- name: Verify Balena Etcher installation
+  ansible.builtin.command: balena-etcher-electron --version
+  register: balena_etcher_version_check
+  ignore_errors: true
+
+- name: Display Balena Etcher version
+  debug:
+    msg: "Balena Etcher version installed: {{ balena_etcher_version_check.stdout }}"
+
+- name: Autoremove unnecessary dependencies
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Clean up unused packages from the cache
+  ansible.builtin.apt:
+    autoclean: yes

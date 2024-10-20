@@ -1,0 +1,45 @@
+---
+- name: Update package cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600 # Cache validity for 1 hour
+  register: apt_update
+
+- name: Display result of package cache update
+  debug:
+    var: apt_update.cache_update_time
+
+- name: Upgrade all packages to the latest version
+  become: true
+  ansible.builtin.apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force: no
+  when: apt_update.changed
+  register: package_upgrade
+
+- name: Display result of package upgrade
+  debug:
+    var: package_upgrade.changes
+
+- name: Remove dependencies that are no longer required
+  become: true
+  ansible.builtin.apt:
+    autoremove: true
+  register: autoremove_result
+
+- name: Display result of autoremove
+  debug:
+    var: autoremove_result.changes
+
+- name: Remove useless packages from the cache
+  become: true
+  ansible.builtin.apt:
+    autoclean: true
+  register: autoclean_result
+
+- name: Display result of autoclean
+  debug:
+    var: autoclean_result.changes

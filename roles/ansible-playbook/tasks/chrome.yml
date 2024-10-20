@@ -1,0 +1,19 @@
+---
+- name: Download Google Chrome .deb package
+  become: true
+  ansible.builtin.get_url:
+    url: "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+    dest: "/tmp/google-chrome-stable_current_amd64.deb"
+
+- name: Install Google Chrome from downloaded .deb
+  become: true
+  ansible.builtin.apt:
+    deb: "/tmp/google-chrome-stable_current_amd64.deb"
+    state: present
+
+- name: Ensure Google Chrome is installed
+  ansible.builtin.command:
+    cmd: "google-chrome --version"
+  register: chrome_installed
+  changed_when: false
+  failed_when: chrome_installed.rc != 0

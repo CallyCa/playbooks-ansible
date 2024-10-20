@@ -1,0 +1,20 @@
+---
+# Vagrant Installation
+- name: Download Vagrant {{ vagrant_version }} .deb package
+  become: true
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/vagrant/{{ vagrant_version }}/vagrant_{{ vagrant_version }}-1_amd64.deb"
+    dest: "/tmp/vagrant_{{ vagrant_version }}-1_amd64.deb"
+
+- name: Install Vagrant {{ vagrant_version }} from .deb package
+  become: true
+  ansible.builtin.apt:
+    deb: "/tmp/vagrant_{{ vagrant_version }}-1_amd64.deb"
+
+- name: Verify Vagrant installation
+  ansible.builtin.command: vagrant --version
+  register: vagrant_version_check
+
+- name: Display Vagrant version
+  debug:
+    var: vagrant_version_check.stdout

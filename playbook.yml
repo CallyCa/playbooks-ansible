@@ -1,0 +1,8 @@
+---
+- name: Setup environment
+  hosts: localhost
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: ansible-playbook

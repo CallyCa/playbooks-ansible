@@ -1,0 +1,15 @@
+# Handlers
+---
+- name: Restart Docker
+  ansible.builtin.service:
+    name: docker
+    state: restarted
+
+- name: Restart Rsyslog
+  ansible.builtin.service:
+    name: rsyslog
+    state: restarted
+
+- name: Restart Openvpn
+  ansible.builtin.command:
+    cmd: service openvpn@server restart

@@ -1,0 +1,57 @@
+---
+- name: Install Terraform
+  block:
+    - name: Installing Terraform {{ terraform_versions[0] }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_versions[0] }}/terraform_{{ terraform_versions[0] }}_linux_amd64.zip"
+        dest: /usr/local/bin
+        remote_src: true
+
+    - name: Renaming terraform{{ terraform_versions[0].split('.')[0] }} binary
+      become: true
+      ansible.builtin.command: mv /usr/local/bin/terraform /usr/local/bin/terraform{{ terraform_versions[0].split('.')[0] }}
+
+    - name: Installing Terraform {{ terraform_versions[1] }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_versions[1] }}/terraform_{{ terraform_versions[1] }}_linux_amd64.zip"
+        dest: /usr/local/bin
+        remote_src: true
+
+    - name: Renaming terraform{{ terraform_versions[1].split('.')[0] }} binary
+      become: true
+      ansible.builtin.command: mv /usr/local/bin/terraform /usr/local/bin/terraform{{ terraform_versions[1].split('.')[0] }}
+
+    - name: Installing Terraform {{ terraform_versions[2] }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_versions[2] }}/terraform_{{ terraform_versions[2] }}_linux_amd64.zip"
+        dest: /usr/local/bin
+        remote_src: true
+
+    - name: Renaming terraform{{ terraform_versions[2].split('.')[0] }} binary
+      become: true
+      ansible.builtin.command: mv /usr/local/bin/terraform /usr/local/bin/terraform{{ terraform_versions[2].split('.')[0] }}
+
+    - name: Installing Terraform {{ terraform_versions[3] }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_versions[3] }}/terraform_{{ terraform_versions[3] }}_linux_amd64.zip"
+        dest: /usr/local/bin
+        remote_src: true
+
+    - name: Renaming terraform{{ terraform_versions[3].split('.')[0] }} binary
+      become: true
+      ansible.builtin.command: mv /usr/local/bin/terraform /usr/local/bin/terraform{{ terraform_versions[3].split('.')[0] }}
+
+    - name: Installing Terraform {{ terraform_versions[4] }}
+      become: true
+      ansible.builtin.unarchive:
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_versions[4] }}/terraform_{{ terraform_versions[4] }}_linux_amd64.zip"
+        dest: /usr/local/bin
+        remote_src: true
+
+    - name: Renaming terraform{{ terraform_versions[4].split('.')[0] }} binary
+      become: true
+      ansible.builtin.command: mv /usr/local/bin/terraform /usr/local/bin/terraform{{ terraform_versions[4].split('.')[0] }}

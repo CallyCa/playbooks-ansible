@@ -1,0 +1,22 @@
+---
+- name: Download Vault {{ vault_version }} .zip file
+  become: true
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip"
+    dest: "/tmp/vault_{{ vault_version }}_linux_amd64.zip"
+
+- name: Unzip Vault binary
+  become: true
+  ansible.builtin.unarchive:
+    src: "/tmp/vault_{{ vault_version }}_linux_amd64.zip"
+    dest: /usr/local/bin
+    remote_src: true
+    mode: "0755"
+
+- name: Verify Vault installation
+  ansible.builtin.command: vault --version
+  register: vault_version_check
+
+- name: Display Vault version
+  debug:
+    var: vault_version_check.stdout

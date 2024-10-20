@@ -1,0 +1,64 @@
+---
+- name: Add NodeSource repository for NodeJS
+  ansible.builtin.shell:
+    cmd: "curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+  become: true
+  register: nodejs_repo_added
+  changed_when: "'setup_lts.x' in nodejs_repo_added.stdout"
+
+- name: Install NodeJS and npm
+  become: true
+  ansible.builtin.apt:
+    name: nodejs
+    state: present
+    update_cache: yes
+
+- name: Add Yarn GPG key
+  ansible.builtin.apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+    state: present
+  become: true
+
+- name: Add Yarn repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://dl.yarnpkg.com/debian/ stable main"
+    state: present
+  become: true
+
+- name: Update apt cache after adding Yarn repository
+  ansible.builtin.apt:
+    update_cache: yes
+  become: true
+
+- name: Install Yarn
+  ansible.builtin.apt:
+    name: yarn
+    state: present
+  become: true
+
+- name: Verify NodeJS installation
+  ansible.builtin.shell: "node -v"
+  register: node_version
+  changed_when: false
+
+- name: Display NodeJS version
+  debug:
+    msg: "Installed NodeJS version: {{ node_version.stdout }}"
+
+- name: Verify npm installation
+  ansible.builtin.shell: "npm -v"
+  register: npm_version
+  changed_when: false
+
+- name: Display npm version
+  debug:
+    msg: "Installed npm version: {{ npm_version.stdout }}"
+
+- name: Verify Yarn installation
+  ansible.builtin.shell: "yarn -v"
+  register: yarn_version
+  changed_when: false
+
+- name: Display Yarn version
+  debug:
+    msg: "Installed Yarn version: {{ yarn_version.stdout }}"

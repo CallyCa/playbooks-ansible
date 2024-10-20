@@ -1,0 +1,102 @@
+---
+# Default user obtained from the environment
+ansible_user_id: "{{ lookup('env', 'USER') | default('default_user') }}"
+
+# Common packages to be installed
+common_packages:
+  - vim
+  - htop
+  - curl
+  - build-essential
+  - wget
+  - apparmor
+  - lxc
+  - cgroup-lite
+  - ncdu
+  - tree
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - python3-pip
+  - make
+  - git
+  - bash-completion
+  - gnupg-agent
+  - openssh-client
+  - openssh-server
+  - zsh
+  - virtualbox
+  - mlocate
+  - krita
+  - jq
+  - mtr
+  - snapd
+  - flatpak
+  - zip
+  - unzip
+
+# LaTeX installation packages
+latex_packages:
+  - texlive-full
+  - texlive-latex-extra
+  - texlive-science
+  - texlive-fonts-extra
+  - texlive-lang-portuguese
+  - biber
+  - latexmk
+  - pandoc
+  - xzdec
+
+# Ruby and version managers (Rbenv and RVM) related variables
+ruby_version: "{{ lookup('env', 'RUBY_VERSION') | default('3.0.7') }}"
+rbenv_version: "{{ ruby_version }}"
+rvm_version: "{{ lookup('env', 'RVM_VERSION') | default('ruby') }}"
+
+# Rbenv and Ruby-build repositories
+rbenv_repo: "https://github.com/rbenv/rbenv.git"
+ruby_build_repo: "https://github.com/rbenv/ruby-build.git"
+
+# Paths for configuring Rbenv and RVM in the shell
+zshrc_path: "{{ ansible_env.HOME }}/.zshrc"
+rbenv_path: "{{ ansible_env.HOME }}/.rbenv"
+rvm_script_path: "{{ ansible_env.HOME }}/.rvm/scripts/rvm"
+
+# OpenSSL version
+openssl_version: "3.3.2"
+openssl_install_dir: "/usr/local/openssl-{{ openssl_version }}"
+
+# Java installation variables
+java_version_17: "17.0.3-zulu"
+java_version_11: "11.0.11-zulu"
+
+# Maven installation variables
+maven_version: "3.8.5"
+
+# SDKMAN related paths
+sdkman_init_path: "{{ ansible_env.HOME }}/.sdkman/bin/sdkman-init.sh"
+
+# Docker Compose version
+docker_compose_version: "v2.29.7"
+
+# P4Merge installation paths
+p4merge_version: "r21.2"
+p4merge_download_path: "/home/{{ ansible_user_id }}/Downloads/p4v.tgz"
+p4merge_extract_path: "/home/{{ ansible_user_id }}/Downloads/p4v"
+p4merge_install_path: "/opt/p4merge"
+p4merge_symlink: "/usr/local/bin/p4merge"
+
+# Vagrant installation variables
+vagrant_version: "2.4.1"
+
+# Gomplate installation variables
+gomplate_version: "4.1.0"
+
+# Kubectl installation variables
+kubectl_version: "1.31.1"
+kubectx_version: "v0.9.5"
+
+# Flutter installation version
+flutter_version: "3.24.1-stable"
+
+# Balena Etcher version
+balena_etcher_version: "1.19.25"

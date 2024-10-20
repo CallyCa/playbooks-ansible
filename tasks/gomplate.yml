@@ -1,8 +1,0 @@
-# Gomplate
----
-- name: Install Gomplate 4.1.0
-  become: true
-  ansible.builtin.get_url:
-    url: "https://github.com/hairyhenderson/gomplate/releases/download/v4.1.0/gomplate_linux-amd64"
-    dest: /usr/local/bin/gomplate
-    mode: 755

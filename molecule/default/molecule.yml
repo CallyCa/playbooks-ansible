@@ -55,6 +55,8 @@ provisioner:
   config_options:
     defaults:
       host_key_checking: false # Desativa verificação de chave SSH (melhor apenas em ambientes de teste)
+      roles_path: "roles"
+
   playbooks:
     converge: converge.yml # Playbook a ser utilizado
   options:

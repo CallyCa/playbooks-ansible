@@ -1,0 +1,91 @@
+---
+- name: Install common packages
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Check if SDKMAN is already installed
+  stat:
+    path: "{{ sdkman_init_path }}"
+  register: sdkman_installed
+
+- name: Install SDKMAN if not installed
+  shell: |
+    curl -s "https://get.sdkman.io" | bash
+  when: not sdkman_installed.stat.exists
+
+- name: Initialize SDKMAN in current shell
+  shell: source "{{ sdkman_init_path }}"
+  args:
+    executable: /bin/zsh
+  when: sdkman_installed.stat.exists
+
+- name: Check if Java 17 is installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk current java | grep "{{ java_version_17 }}"
+  register: java_17_installed
+  failed_when: java_17_installed.rc not in [0,1]
+  args:
+    executable: /bin/zsh # Ensure Zsh is used
+
+- name: Install Java 17 if not installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk install java {{ java_version_17 }}
+  args:
+    executable: /bin/zsh
+  when: java_17_installed.rc == 1
+
+- name: Check if Java 11 is installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk current java | grep "{{ java_version_11 }}"
+  register: java_11_installed
+  failed_when: java_11_installed.rc not in [0,1]
+  args:
+    executable: /bin/zsh # Ensure Zsh is used
+
+- name: Install Java 11 if not installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk install java {{ java_version_11 }}
+  args:
+    executable: /bin/zsh
+  when: java_11_installed.rc == 1
+
+- name: Check if Maven is installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk current maven | grep "{{ maven_version }}"
+  register: maven_installed
+  failed_when: maven_installed.rc not in [0,1]
+  args:
+    executable: /bin/zsh # Ensure Zsh is used
+
+- name: Install Maven if not installed
+  shell: |
+    source "{{ sdkman_init_path }}" && sdk install maven {{ maven_version }}
+  args:
+    executable: /bin/zsh
+  when: maven_installed.rc == 1
+
+- name: Verify Java 17 installation
+  shell: |
+    source "{{ sdkman_init_path }}" && java -version
+  register: java_version_17_check
+  changed_when: false
+  args:
+    executable: /bin/zsh # Ensure Zsh is used
+
+- name: Display Java 17 installation result
+  debug:
+    msg: "Installed Java 17 version: {{ java_version_17_check.stdout }}"
+
+- name: Verify Maven installation
+  shell: |
+    source "{{ sdkman_init_path }}" && mvn -version
+  register: maven_version_check
+  changed_when: false
+  args:
+    executable: /bin/zsh # Ensure Zsh is used
+
+- name: Display Maven installation result
+  debug:
+    msg: "Installed Maven version: {{ maven_version_check.stdout }}"

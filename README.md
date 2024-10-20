@@ -17,15 +17,13 @@ Antes de começar, é necessário ter as seguintes ferramentas instaladas na sua
 
 ### Instalação de Dependências
 
-1. **Instale o Ansible e o Molecule globalmente** (se ainda não tiver):
+1. **Instale o Ansible**:
 
    ```bash
-   sudo apt update
-   sudo apt install ansible -y
-   python3 -m pip install molecule[docker]
+   sudo apt update && sudo apt install ansible unzip git -y
    ```
 
-2. **Opcional: criar um ambiente Python virtual** para isolamento:
+2. **Criar um ambiente Python virtual** para isolamento:
 
    ```bash
    python3 -m venv .venv
@@ -35,6 +33,7 @@ Antes de começar, é necessário ter as seguintes ferramentas instaladas na sua
 3. **Instalar as dependências do projeto**:
 
    ```bash
+   sudo apt install python3-pip
    python3 -m pip install -r requirements.txt
    ```
 
@@ -132,7 +131,7 @@ O projeto inclui handlers para reiniciar serviços como Docker e rsyslog. Isso �
 Por exemplo:
 
 ```yaml
-- name: restart docker
+- name: Restart Docker
   ansible.builtin.service:
     name: docker
     state: restarted

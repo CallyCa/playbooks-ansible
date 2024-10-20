@@ -1,0 +1,55 @@
+---
+- name: Ensure python3-apt is installed
+  become: true
+  ansible.builtin.apt:
+    name: python3-apt
+    state: present
+
+- name: Add qBittorrent PPA repository manually
+  become: true
+  ansible.builtin.command:
+    cmd: "add-apt-repository -y ppa:qbittorrent-team/qbittorrent-stable"
+  register: qbittorrent_repo
+
+- name: Update APT package cache after adding qBittorrent PPA
+  become: true
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600 # Cache validity for 1 hour
+  when: qbittorrent_repo.changed
+  register: apt_update
+
+- name: Display result of APT cache update
+  debug:
+    var: apt_update.cache_update_time
+
+- name: Install qBittorrent
+  become: true
+  ansible.builtin.apt:
+    name: qbittorrent
+    state: present
+    update_cache: yes
+  register: qbittorrent_install
+
+- name: Display result of qBittorrent installation
+  debug:
+    var: qbittorrent_install.changes
+
+- name: Verify qBittorrent installation
+  ansible.builtin.command: qbittorrent --version
+  register: qbittorrent_version_check
+  ignore_errors: true
+
+- name: Display qBittorrent version
+  debug:
+    var: qbittorrent_version_check.stdout
+
+- name: Autoremove unnecessary dependencies
+  become: true
+  ansible.builtin.apt:
+    autoremove: yes
+
+- name: Clean up unused packages from the cache
+  become: true
+  ansible.builtin.apt:
+    autoclean: yes

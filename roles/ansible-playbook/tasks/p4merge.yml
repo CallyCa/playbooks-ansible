@@ -1,0 +1,58 @@
+---
+- name: Ensure Downloads directory exists
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user_id }}/Downloads"
+    state: directory
+    mode: 0755
+
+- name: Download P4Merge package
+  ansible.builtin.get_url:
+    url: "https://www.perforce.com/downloads/perforce/{{ p4merge_version }}/bin.linux26x86_64/p4v.tgz"
+    dest: "/home/{{ ansible_user_id }}/Downloads/p4v.tgz"
+    mode: 0755
+
+- name: Extract P4Merge package
+  ansible.builtin.unarchive:
+    src: "/home/{{ ansible_user_id }}/Downloads/p4v.tgz"
+    dest: "/home/{{ ansible_user_id }}/Downloads/p4v"
+    remote_src: yes
+    creates: "/home/{{ ansible_user_id }}/Downloads/p4v"
+
+- name: Verify extracted files
+  ansible.builtin.command:
+    cmd: "ls -l /home/{{ ansible_user_id }}/Downloads/p4v"
+  register: extracted_files
+  ignore_errors: true
+
+- name: Debug extracted files
+  debug:
+    var: extracted_files.stdout
+
+- name: Create P4Merge directory
+  ansible.builtin.file:
+    path: /opt/p4merge
+    state: directory
+    mode: 0755
+
+- name: Move extracted P4Merge to /opt/p4merge
+  ansible.builtin.shell: |
+    mv /home/{{ ansible_user_id }}/Downloads/p4v/* /opt/p4merge
+  become: true
+
+- name: Create symbolic link for P4Merge
+  ansible.builtin.file:
+    src: /opt/p4merge/bin/p4merge
+    dest: /usr/local/bin/p4merge
+    state: link
+    force: yes
+    become: true
+
+- name: Set P4Merge as default merge and diff tool for Git
+  ansible.builtin.shell: |
+    git config --global merge.tool p4merge
+    git config --global mergetool.p4merge.path /usr/local/bin/p4merge
+    git config --global mergetool.prompt false
+    git config --global diff.tool p4merge
+    git config --global difftool.p4merge.path /usr/local/bin/p4merge
+    git config --global difftool.prompt false
+  become: true
