@@ -27,6 +27,7 @@ common_packages:
   - zsh
   - virtualbox
   - plocate
+  - gedit
   - krita
   - jq
   - mtr
