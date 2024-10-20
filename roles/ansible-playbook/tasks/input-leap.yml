@@ -1,5 +1,5 @@
 ---
-- name: Ensure required packages are installed (Debian/Ubuntu)
+- name: Ensure required packages for Input Leap are installed
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
@@ -16,50 +16,6 @@
     - libssl-dev
   tags:
     - packages
-
-- name: Download and add Kitware GPG key to /usr/share/keyrings
-  ansible.builtin.get_url:
-    url: https://apt.kitware.com/keys/kitware-archive-latest.asc
-    dest: /usr/share/keyrings/kitware-archive-keyring.gpg
-  tags:
-    - cmake
-
-- name: Add Kitware APT repository with signed-by option
-  ansible.builtin.apt_repository:
-    repo: "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ {{ ansible_distribution_release }} main"
-    filename: kitware.list
-    update_cache: yes
-  tags:
-    - cmake
-
-- name: Install CMake 3.21+
-  ansible.builtin.apt:
-    name: cmake
-    state: latest
-    update_cache: true
-  tags:
-    - cmake
-
-- name: Add Qt6 PPA repository (using focal for compatibility)
-  ansible.builtin.apt_repository:
-    repo: "ppa:okirby/qt6-backports"
-    codename: "focal" # Force compatibility with Ubuntu Focal (20.04)
-    state: present
-  tags:
-    - qt6
-
-- name: Ensure Qt6 packages are installed
-  ansible.builtin.apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: true
-  loop:
-    - qt6-base-dev
-    - qt6-tools-dev
-    - qt6-tools-dev-tools
-    - qt6-l10n-tools
-  tags:
-    - qt6
 
 - name: Ensure OpenGL dependencies are installed
   ansible.builtin.apt:
@@ -82,14 +38,14 @@
   tags:
     - input-leap
 
-- name: Create build directory
+- name: Create build directory for Input Leap
   ansible.builtin.file:
     path: /opt/input-leap/build
     state: directory
   tags:
     - build
 
-- name: Run CMake configuration
+- name: Run CMake configuration for Input Leap
   ansible.builtin.command:
     cmd: cmake -S. -Bbuild
     chdir: /opt/input-leap

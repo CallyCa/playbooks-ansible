@@ -28,6 +28,8 @@
 - include_tasks: java.yml
 - include_tasks: latex.yml
 - include_tasks: ruby.yml
+- include_tasks: cmake.yml
+- include_tasks: qt6.yml
 - include_tasks: input-leap.yml
 - include_tasks: homebrew.yml
 - include_tasks: flatpak.yml
