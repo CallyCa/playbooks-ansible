@@ -27,7 +27,8 @@
 - name: Add Kitware APT repository with signed-by option
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ {{ ansible_distribution_release }} main"
-    filename: kitware
+    filename: kitware.list
+    update_cache: yes
   tags:
     - cmake
 
