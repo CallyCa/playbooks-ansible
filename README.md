@@ -26,6 +26,7 @@ Antes de começar, é necessário ter as seguintes ferramentas instaladas na sua
 2. **Criar um ambiente Python virtual** para isolamento:
 
    ```bash
+   sudo apt install python3-venv
    python3 -m venv .venv
    source .venv/bin/activate
    ```

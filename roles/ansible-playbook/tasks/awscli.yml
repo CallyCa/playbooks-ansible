@@ -1,7 +1,17 @@
-# AWS CLI
----
-- name: Installing AWS CLI via pip3
+- name: Create a Python virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /opt/awscli-venv
   become: true
-  pip:
+
+- name: Install AWS CLI in the virtual environment
+  ansible.builtin.pip:
     name: awscli
-    executable: pip3
+    executable: /opt/awscli-venv/bin/pip3
+  become: true
+
+- name: Ensure the virtual environment's bin directory is in the user's PATH
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/awscli.sh
+    line: 'export PATH="/opt/awscli-venv/bin:$PATH"'
+    create: yes
+  become: true
