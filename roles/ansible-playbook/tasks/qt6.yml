@@ -41,9 +41,9 @@
   tags:
     - qt6
 
-- name: Compile Qt6
+- name: Compile Qt6 using multiple cores
   ansible.builtin.command:
-    cmd: "make"
+    cmd: "make -j{{ ansible_processor_cores | default(2) }}"
     chdir: "/opt/qt-everywhere-src-{{ qt6_subversion }}/qtbase"
   tags:
     - qt6

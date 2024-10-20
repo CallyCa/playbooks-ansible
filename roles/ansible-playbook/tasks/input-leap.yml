@@ -45,9 +45,11 @@
   tags:
     - build
 
-- name: Run CMake configuration for Input Leap
-  ansible.builtin.command:
-    cmd: cmake -S. -Bbuild
+- name: Set environment variable for Qt6
+  ansible.builtin.shell: |
+    export Qt6_DIR="/usr/local/Qt-{{ qt6_subversion }}/lib/cmake/Qt6"
+    cmake -S. -Bbuild
+  args:
     chdir: /opt/input-leap
   tags:
     - build
@@ -92,8 +94,3 @@
     creates: /root/.local/share/InputLeap/SSL/InputLeap.pem
   tags:
     - ssl
-# - name: Run SSL fingerprint generation script
-#   ansible.builtin.command:
-#     cmd: /usr/local/bin/generate_fingerprint.sh
-#   tags:
-#     - ssl
