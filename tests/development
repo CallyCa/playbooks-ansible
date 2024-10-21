@@ -1,2 +1,3 @@
+# All hosts group (local development environment)
 [all]
 localhost ansible_connection=local

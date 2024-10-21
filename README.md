@@ -1,29 +1,29 @@
-# Template Role Ansible
+# Playbook Ansible
 
-Este projeto serve como um template para criação de playbooks Ansible utilizando boas práticas de automação, além de fornecer integração com [Molecule](https://molecule.readthedocs.io/en/latest/) para testes de infraestrutura como código.
+This project serves as a template for creating Ansible playbooks following automation best practices. It integrates with [Molecule](https://molecule.readthedocs.io/en/latest/) to support Infrastructure as Code (IaC) testing.
 
-## Objetivo
+## Purpose
 
-Este template facilita a criação e gestão de ambientes de automação com Ansible, permitindo o uso de um ambiente de testes local baseado no Molecule. Também pode ser utilizado em pipelines de CI/CD para garantir a consistência e qualidade da sua automação.
+This template simplifies the creation and management of automation environments using Ansible, enabling local test environments via Molecule. It is also designed for integration with CI/CD pipelines to ensure automation consistency and quality.
 
-## Dependências
+## Prerequisites
 
-Antes de começar, é necessário ter as seguintes ferramentas instaladas na sua máquina:
+Ensure that the following tools are installed on your machine:
 
 - [Python 3](https://www.python.org/downloads/)
 - [Ansible](https://docs.ansible.com/)
 - [Molecule](https://molecule.readthedocs.io/en/latest/installation.html)
-- [Docker](https://www.docker.com/) (para testar os playbooks com Molecule)
+- [Docker](https://www.docker.com/) (for running Molecule tests)
 
-### Instalação de Dependências
+### Dependency Installation
 
-1. **Instale o Ansible**:
+1. **Install Ansible**:
 
    ```bash
    sudo apt update && sudo apt install ansible unzip git -y
    ```
 
-2. **Criar um ambiente Python virtual** para isolamento:
+2. **Set up a Python virtual environment** to isolate dependencies:
 
    ```bash
    sudo apt install python3-venv
@@ -31,75 +31,76 @@ Antes de começar, é necessário ter as seguintes ferramentas instaladas na sua
    source .venv/bin/activate
    ```
 
-3. **Instalar as dependências do projeto**:
+3. **Install project dependencies**:
 
    ```bash
    sudo apt install python3-pip
    python3 -m pip install -r requirements.txt
    ```
 
-## Estrutura do Projeto
+## Project Structure
 
-O projeto é organizado da seguinte maneira:
+The project is structured as follows:
 
-- `roles/`: contém as funções Ansible reutilizáveis.
-- `molecule/`: configuração dos cenários de teste Molecule.
-- `tasks/`: tarefas principais que serão executadas.
-- `handlers/`: gerencia reinicializações e serviços.
-- `templates/`: templates usados para arquivos de configuração.
-- `files/`: arquivos que são enviados para os hosts de destino.
+- **`roles/`**: Contains reusable Ansible roles.
+- **`molecule/`**: Configuration for Molecule testing scenarios.
+- **`tasks/`**: Main tasks executed by the playbooks.
+- **`handlers/`**: Handlers for restarting services or performing other actions.
+- **`templates/`**: Jinja2 templates for configuration files.
+- **`files/`**: Static files deployed to target hosts.
+- **`tests/`**: Integration tests and inventory for testing environments.
 
-## Como Usar
+## Usage
 
-### Execução Local no Host (sem inventário)
+### Running Locally (Without Inventory)
 
-Este projeto já está configurado para ser executado em `localhost`, o que significa que você pode rodar os playbooks diretamente na máquina local, sem a necessidade de alterar o inventário.
+The project is configured to run on `localhost` by default, allowing you to apply playbooks directly to your local machine.
 
-Para executar o playbook diretamente no host local:
+To execute the playbook on your local machine:
 
 ```bash
 ansible-playbook -i tests/inventory playbook.yml --connection=local --ask-become-pass
 ```
 
-Isso aplicará o playbook na máquina local usando o Ansible com `localhost` como alvo por padrão.
+This runs the playbook on your local machine, using Ansible's `localhost` connection.
 
-### Testes Locais com Molecule
+### Running Local Tests with Molecule
 
-O Molecule permite testar a execução dos playbooks Ansible localmente usando containers Docker, simulando um ambiente de produção.
+Molecule allows you to test Ansible playbooks in Docker containers, simulating production environments.
 
-1. **Criar o ambiente de teste**:
+1. **Create a test environment**:
 
    ```bash
    molecule create
    ```
 
-2. **Executar o playbook** no ambiente de teste:
+2. **Run the playbook** in the test environment:
 
    ```bash
    molecule converge
    ```
 
-3. **Verificar o resultado** dos testes:
+3. **Verify the result** of the playbook execution:
 
    ```bash
    molecule verify
    ```
 
-4. **Destruir o ambiente de teste** após a execução:
+4. **Destroy the test environment** after use:
 
    ```bash
    molecule destroy
    ```
 
-5. **Executar todos os testes de uma vez**:
+5. **Run all tests in one command**:
 
    ```bash
    molecule test
    ```
 
-### Estrutura do Inventário (Opcional)
+### Optional Inventory Structure
 
-Se desejar personalizar o inventário ou rodar o playbook em um conjunto específico de máquinas, você pode definir um inventário opcionalmente, criando um arquivo `hosts` como abaixo:
+If you prefer to run the playbook on a set of remote hosts, you can define an inventory file as follows:
 
 ```ini
 [webservers]
@@ -107,13 +108,13 @@ Se desejar personalizar o inventário ou rodar o playbook em um conjunto especí
 192.168.0.102
 ```
 
-Mas se sua intenção for rodar o playbook na máquina local, isso não é necessário.
+However, for local execution, this is not required.
 
-## Variáveis
+## Variables
 
-As variáveis globais usadas no projeto estão armazenadas no diretório `group_vars` ou podem ser definidas diretamente no playbook. Elas permitem a personalização da instalação e configuração de pacotes.
+Global variables are stored in `group_vars` or can be directly set in the playbook. These allow customization of package installation and configuration.
 
-Exemplo de variáveis:
+Example of common variables:
 
 ```yaml
 ansible_user_id: "{{ lookup('env', 'USER') }}"
@@ -127,9 +128,9 @@ common_packages:
 
 ## Handlers
 
-O projeto inclui handlers para reiniciar serviços como Docker e rsyslog. Isso é útil para garantir que as configurações sejam aplicadas corretamente. 
+The project includes handlers that restart services like Docker and rsyslog to ensure configurations are correctly applied.
 
-Por exemplo:
+Example handler:
 
 ```yaml
 - name: Restart Docker
@@ -138,16 +139,16 @@ Por exemplo:
     state: restarted
 ```
 
-## Personalização
+## Customization
 
-Você pode ajustar os arquivos do projeto conforme suas necessidades. Os templates e arquivos de configuração podem ser facilmente modificados para incluir outros serviços e pacotes.
+Feel free to modify the project to suit your needs. You can add new roles, adjust tasks, or change templates to automate additional services and workflows.
 
-## Dicas de Debug
+## Debugging Tips
 
-1. **Execução verbose**: Para executar o Ansible com mais detalhes, use a flag `-vvv`:
+1. **Verbose Mode**: To run Ansible with detailed logging, use the `-vvv` flag:
 
    ```bash
    ansible-playbook playbook.yml -vvv
    ```
 
-2. **Testar em ambiente controlado**: Antes de aplicar em produção, execute o playbook em um ambiente de staging ou local usando Molecule.
+2. **Test in a controlled environment**: Use Molecule to test playbooks in a simulated environment before applying them in production.

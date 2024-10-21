@@ -2,3 +2,4 @@
 .cache/
 molecule/default/reports/*.txt
 .vscode
+roles/geerlingguy.docker

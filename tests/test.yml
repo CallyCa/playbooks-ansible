@@ -2,9 +2,64 @@
 ---
 - name: Test Playbook
   hosts: all
+  gather_facts: yes
+
   tasks:
-    - name: Assert all packages are installed
+    - name: Assert essential packages are installed
       assert:
         that:
           - "'vim' in ansible_facts.packages"
           - "'curl' in ansible_facts.packages"
+          - "'git' in ansible_facts.packages"
+          - "'htop' in ansible_facts.packages"
+          - "'python3-pip' in ansible_facts.packages"
+        fail_msg: "One or more essential packages are missing."
+        success_msg: "All essential packages are installed."
+
+    - name: Check package versions
+      block:
+        - name: Ensure Vim version is correct
+          command: vim --version
+          register: vim_version
+        - name: Assert Vim version is 8.2 or higher
+          assert:
+            that:
+              - vim_version.stdout is search('Vi IMproved 8.[2-9]')
+
+        - name: Ensure Curl version is correct
+          command: curl --version
+          register: curl_version
+        - name: Assert Curl version is 7.68 or higher
+          assert:
+            that:
+              - curl_version.stdout is search('curl 7.(6[8-9]|[7-9])')
+
+    - name: Check system integrity after installations
+      block:
+        - name: Check if system load is under threshold
+          command: uptime
+          register: uptime_output
+        - name: Parse system load from uptime
+          set_fact:
+            system_load: "{{ uptime_output.stdout.split('load average:')[1].split(',')[0] | float }}"
+        - name: Assert system load is under 1.5
+          assert:
+            that:
+              - system_load < 1.5
+            fail_msg: "System load is too high: {{ system_load }}"
+            success_msg: "System load is under control: {{ system_load }}"
+
+    - name: Check disk space after installations
+      block:
+        - name: Ensure at least 20% disk space is free
+          command: df -h /
+          register: disk_space
+        - name: Parse disk usage percentage
+          set_fact:
+            disk_usage: "{{ disk_space.stdout.splitlines()[-1].split()[4] | regex_replace('%','') | int }}"
+        - name: Assert disk usage is under 80%
+          assert:
+            that:
+              - disk_usage < 80
+            fail_msg: "Disk usage is critically high: {{ disk_usage }}%"
+            success_msg: "Disk usage is within limits: {{ disk_usage }}%"
