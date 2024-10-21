@@ -5,36 +5,37 @@
   ansible.builtin.apt:
     name: snapd
     state: present
-# - name: Ensure snapd is running
-#   become: true
-#   ansible.builtin.service:
-#     name: snapd
-#     state: started
-#     enabled: yes
 
-# - name: Snap install packages with tag
-#   become: true
-#   ansible.builtin.command:
-#     cmd: "snap install {{ item }}"
-#   loop:
-#     - postman
-#     - bpytop
-#     - mailspring
-#     - drawio
-#     - gnome-logs
-#     - insomnia
-#     - figma-linux
-#     - drawio
-#     - discord
-#     - obs-studio
-#     - telegram-desktop
-#     - vlc
+- name: Ensure snapd is running
+  become: true
+  ansible.builtin.service:
+    name: snapd
+    state: started
+    enabled: yes
 
-# - name: Snap install packages with tag classic
-#   become: true
-#   ansible.builtin.command:
-#     cmd: "snap install {{ item }} --classic"
-#   loop:
-#     - code
-#     - intellij-idea-community
-#     - android-studio
+- name: Snap install packages with tag
+  become: true
+  ansible.builtin.command:
+    cmd: "snap install {{ item }}"
+  loop:
+    - postman
+    - bpytop
+    - mailspring
+    - drawio
+    - gnome-logs
+    - insomnia
+    - figma-linux
+    - drawio
+    - discord
+    - obs-studio
+    - telegram-desktop
+    - vlc
+
+- name: Snap install packages with tag classic
+  become: true
+  ansible.builtin.command:
+    cmd: "snap install {{ item }} --classic"
+  loop:
+    - code
+    - intellij-idea-community
+    - android-studio

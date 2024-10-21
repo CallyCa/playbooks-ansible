@@ -2,24 +2,19 @@
 ---
 - name: Flatpak install
   block:
-    - name: Add Flatpak PPA repository
-      become: true
-      ansible.builtin.apt_repository:
-        repo: ppa:alexlarsson/flatpak
-        state: present
-
     - name: Ensure Flatpak is installed and up-to-date
       become: true
       ansible.builtin.apt:
         name: flatpak
         state: latest
+        update_cache: true
 
     - name: Ensure Flatpak remote is configured
       become: true
-      ansible.builtin.shell: |
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      ansible.builtin.command:
+        cmd: "flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo"
 
-    - name: Flathub install
+    - name: Ensure Flathub is present
       become: true
       community.general.flatpak_remote:
         name: flathub
